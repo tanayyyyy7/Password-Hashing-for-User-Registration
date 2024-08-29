@@ -5,7 +5,7 @@ import crypto from 'crypto';
 let users = [];
 const key = crypto.randomBytes(32);
 
-const hash = crypto.createHmac('sha256', key);
+
 
 http.createServer((req, res) => {
   if (req.method === 'POST') {
@@ -17,7 +17,8 @@ http.createServer((req, res) => {
       body = JSON.parse(body);
       const index = users.indexOf(users.username);
       if(index == -1){
-        users[body.username] = body.password;
+        const hash = crypto.createHash('sha256', key);
+        users[body.username] = hash.update(body.password).digest('hex');
       }
       console.log(users);
     });
@@ -28,7 +29,8 @@ http.createServer((req, res) => {
     });
     req.on('end', () => {
       body = JSON.parse(body);
-        users[body.username] = body.password;
+      const hash = crypto.createHash('sha256', key);
+        users[body.username] = hash.update(body.password).digest('hex');
       console.log(users);
     });
   }else if (req.method === 'DELETE') {
